@@ -49,11 +49,11 @@ export default function BirthdayExperience() {
           images={birthdayPhotos}
           shape="ellipse"
           baseWidth={isCompactViewport ? 430 : 1400}
-          radiusX={isCompactViewport ? 230 : 620}
-          radiusY={isCompactViewport ? 170 : 330}
+          radiusX={isCompactViewport ? 176 : 620}
+          radiusY={isCompactViewport ? 122 : 330}
           rotation={-7}
           duration={isCompactViewport ? 28 : 34}
-          itemSize={isCompactViewport ? 56 : 112}
+          itemSize={isCompactViewport ? 48 : 112}
           responsive
           paused={prefersReducedMotion}
         />

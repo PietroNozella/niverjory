@@ -62,6 +62,11 @@ type OffsetPathStyle = CSSProperties & {
   offsetRotate: string;
 };
 
+type FallbackPathStyle = CSSProperties & {
+  x: MotionValue<number>;
+  y: MotionValue<number>;
+};
+
 function generateEllipsePath(cx: number, cy: number, rx: number, ry: number) {
   return `M ${cx - rx} ${cy} A ${rx} ${ry} 0 1 0 ${cx + rx} ${cy} A ${rx} ${ry} 0 1 0 ${cx - rx} ${cy}`;
 }
@@ -141,28 +146,65 @@ function generateWavePath(cx: number, cy: number, width: number, amplitude: numb
   return `${points.join(" ")} Z`;
 }
 
-function OrbitItem({ item, index, totalItems, path, itemSize, rotation, progress, fill }: OrbitItemProps) {
+function OrbitItem({
+  item,
+  index,
+  totalItems,
+  path,
+  itemSize,
+  rotation,
+  progress,
+  fill,
+  supportsMotionPath,
+  centerX,
+  centerY,
+  fallbackRadiusX,
+  fallbackRadiusY,
+}: OrbitItemProps & {
+  supportsMotionPath: boolean;
+  centerX: number;
+  centerY: number;
+  fallbackRadiusX: number;
+  fallbackRadiusY: number;
+}) {
   const itemOffset = fill ? (index / totalItems) * 100 : 0;
   const offsetDistance = useTransform(progress, (progressValue) => {
     const offset = (((progressValue + itemOffset) % 100) + 100) % 100;
 
     return `${offset}%`;
   });
+  const fallbackX = useTransform(progress, (progressValue) => {
+    const offset = (((progressValue + itemOffset) % 100) + 100) % 100;
+    const angle = Math.PI + (offset / 100) * Math.PI * 2;
+
+    return centerX + fallbackRadiusX * Math.cos(angle);
+  });
+  const fallbackY = useTransform(progress, (progressValue) => {
+    const offset = (((progressValue + itemOffset) % 100) + 100) % 100;
+    const angle = Math.PI + (offset / 100) * Math.PI * 2;
+
+    return centerY + fallbackRadiusY * Math.sin(angle);
+  });
+  const style = supportsMotionPath
+    ? ({
+        width: itemSize,
+        height: itemSize,
+        offsetPath: `path("${path}")`,
+        offsetRotate: "0deg",
+        offsetAnchor: "center center",
+        offsetDistance,
+      } as OffsetPathStyle)
+    : ({
+        width: itemSize,
+        height: itemSize,
+        left: -itemSize / 2,
+        top: -itemSize / 2,
+        x: fallbackX,
+        y: fallbackY,
+      } as FallbackPathStyle);
 
   return (
-    <motion.div
-      className="orbit-item"
-      style={
-        {
-          width: itemSize,
-          height: itemSize,
-          offsetPath: `path("${path}")`,
-          offsetRotate: "0deg",
-          offsetAnchor: "center center",
-          offsetDistance,
-        } as OffsetPathStyle
-      }
-    >
+    <motion.div className="orbit-item" style={style}>
       <div style={{ transform: `rotate(${-rotation}deg)` }}>{item}</div>
     </motion.div>
   );
@@ -197,6 +239,7 @@ export default function OrbitImages({
 }: OrbitImagesProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState<number | null>(null);
+  const [supportsMotionPath, setSupportsMotionPath] = useState(false);
   const designCenterX = baseWidth / 2;
   const designCenterY = baseWidth / 2;
   const progress = useMotionValue(0);
@@ -248,6 +291,14 @@ export default function OrbitImages({
   }, [baseWidth, responsive]);
 
   useEffect(() => {
+    setSupportsMotionPath(
+      typeof CSS !== "undefined" &&
+        CSS.supports("offset-path", 'path("M 0 0 L 1 1")') &&
+        CSS.supports("offset-distance", "0%"),
+    );
+  }, []);
+
+  useEffect(() => {
     if (paused) {
       return;
     }
@@ -264,6 +315,7 @@ export default function OrbitImages({
 
   const containerWidth = responsive ? "100%" : typeof width === "number" ? width : "100%";
   const containerHeight = responsive ? "auto" : typeof height === "number" ? height : typeof width === "number" ? width : "auto";
+  const shouldUseMotionPath = supportsMotionPath && shape !== "ellipse" && shape !== "circle";
   const items = images.map((src, index) => (
     <img key={src} src={src} alt={`${altPrefix} ${index + 1}`} draggable={false} className="orbit-image" />
   ));
@@ -306,6 +358,11 @@ export default function OrbitImages({
               rotation={rotation}
               progress={progress}
               fill={fill}
+              supportsMotionPath={shouldUseMotionPath}
+              centerX={designCenterX}
+              centerY={designCenterY}
+              fallbackRadiusX={shape === "circle" ? radius : radiusX}
+              fallbackRadiusY={shape === "circle" ? radius : radiusY}
             />
           ))}
         </div>
