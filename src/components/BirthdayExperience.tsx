@@ -43,23 +43,21 @@ export default function BirthdayExperience() {
       <div className="light-texture" aria-hidden="true" />
       <div className="cinematic-vignette" aria-hidden="true" />
 
-      {!isCompactViewport ? (
-        <Suspense fallback={null}>
-          <OrbitImages
-            className="birthday-orbit"
-            images={birthdayPhotos}
-            shape="ellipse"
-            baseWidth={1400}
-            radiusX={620}
-            radiusY={330}
-            rotation={-7}
-            duration={34}
-            itemSize={112}
-            responsive
-            paused={prefersReducedMotion}
-          />
-        </Suspense>
-      ) : null}
+      <Suspense fallback={null}>
+        <OrbitImages
+          className="birthday-orbit"
+          images={birthdayPhotos}
+          shape="ellipse"
+          baseWidth={isCompactViewport ? 430 : 1400}
+          radiusX={isCompactViewport ? 230 : 620}
+          radiusY={isCompactViewport ? 170 : 330}
+          rotation={-7}
+          duration={isCompactViewport ? 28 : 34}
+          itemSize={isCompactViewport ? 56 : 112}
+          responsive
+          paused={prefersReducedMotion}
+        />
+      </Suspense>
 
       <section className="relative z-10 mx-auto flex min-h-svh w-full max-w-5xl flex-col items-center justify-center px-6 py-24 text-center sm:px-10">
         <motion.div

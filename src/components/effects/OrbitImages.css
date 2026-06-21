@@ -68,6 +68,7 @@
 
 @media (max-width: 899px) {
   .birthday-orbit {
-    display: none;
+    width: min(132vw, 560px);
+    opacity: 0.58;
   }
 }
