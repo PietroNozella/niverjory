@@ -20,7 +20,8 @@ export function useVisualMode() {
 
   return {
     prefersReducedMotion,
-    shouldUseFallback: prefersReducedMotion || isCompactViewport || isLowPowerDevice,
+    isCompactViewport,
+    isLowPowerDevice,
+    shouldUseFallback: prefersReducedMotion || isLowPowerDevice,
   };
 }
-

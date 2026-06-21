@@ -2,6 +2,15 @@
 
 Site em React + Vite para uma experiência de feliz aniversário acessada por QR code.
 
+## Fluxo
+
+1. A página inicial (`/`) mostra o QR code no desktop.
+2. O QR code abre `/aceitar?s=...` no celular.
+3. O celular mostra o botão `ACEITAR FIM DA ESCALA 6X1`.
+4. Ao clicar no botão, a tela do QR code no desktop muda automaticamente para `/mensagem`.
+
+O fluxo usa polling em `/api/access` com sessão em memória. É simples e suficiente para uso pontual; se precisar persistência real entre instâncias/escala, use Supabase ou outro storage compartilhado.
+
 ## Rodar localmente
 
 ```bash
@@ -9,7 +18,7 @@ npm install
 npm run dev
 ```
 
-Abra a URL exibida no terminal. A página inicial (`/`) mostra apenas o QR code, que aponta para `/mensagem` no mesmo domínio.
+Abra a URL exibida no terminal.
 
 ## Build
 
@@ -42,10 +51,10 @@ export const birthdayMessage = {
 
 ## Estrutura dos efeitos
 
-- `src/components/effects/CosmicScene.tsx`: fundo 3D com Three.js, carregado com lazy loading.
-- `src/components/effects/AmbientFallback.tsx`: fallback mais leve para mobile, dispositivos fracos e `prefers-reduced-motion`.
-- `src/hooks/useVisualMode.ts`: decide quando usar o efeito pesado ou o fallback.
+- `src/components/effects/Particles.tsx`: fundo de partículas do React Bits com `ogl`.
+- `src/components/effects/AmbientFallback.tsx`: fallback mais leve para dispositivos fracos e `prefers-reduced-motion`.
+- `src/hooks/useVisualMode.ts`: decide quando usar o efeito animado ou fallback.
 
 ## Deploy
 
-O `vercel.json` já inclui rewrite para SPA, permitindo abrir `/mensagem` diretamente após deploy.
+O `vercel.json` preserva `/api/*` e usa rewrite para SPA nas demais rotas, permitindo abrir `/aceitar` e `/mensagem` diretamente após deploy.

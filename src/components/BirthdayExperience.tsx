@@ -4,17 +4,37 @@ import { birthdayMessage } from "../data/birthdayMessage";
 import { useVisualMode } from "../hooks/useVisualMode";
 import AmbientFallback from "./effects/AmbientFallback";
 
-const CosmicScene = lazy(() => import("./effects/CosmicScene"));
+const birthdayParticleColors = ["#fff0ca", "#ffb649", "#ff5f8f", "#2ec4b6"];
+const birthdayPhotos = [
+  "/birthday-photos/01.jpeg",
+  "/birthday-photos/02.jpeg",
+  "/birthday-photos/03.jpeg",
+  "/birthday-photos/04.jpeg",
+];
+const OrbitImages = lazy(() => import("./effects/OrbitImages"));
+const Particles = lazy(() => import("./effects/Particles"));
 
 export default function BirthdayExperience() {
-  const { prefersReducedMotion, shouldUseFallback } = useVisualMode();
-  const showHeavyScene = !shouldUseFallback;
+  const { prefersReducedMotion, isCompactViewport, isLowPowerDevice } = useVisualMode();
+  const showParticleScene = !prefersReducedMotion && !isLowPowerDevice;
 
   return (
     <main className="message-stage relative min-h-svh overflow-hidden text-[#fff8ec]">
-      {showHeavyScene ? (
+      {showParticleScene ? (
         <Suspense fallback={<AmbientFallback reducedMotion={prefersReducedMotion} />}>
-          <CosmicScene />
+          <Particles
+            className="birthday-particles"
+            particleColors={birthdayParticleColors}
+            particleCount={isCompactViewport ? 260 : 420}
+            particleSpread={isCompactViewport ? 8 : 11}
+            speed={0.12}
+            particleBaseSize={isCompactViewport ? 76 : 92}
+            sizeRandomness={1.25}
+            cameraDistance={isCompactViewport ? 20 : 18}
+            alphaParticles
+            moveParticlesOnHover={!isCompactViewport}
+            particleHoverFactor={0.55}
+          />
         </Suspense>
       ) : (
         <AmbientFallback reducedMotion={prefersReducedMotion} />
@@ -22,6 +42,24 @@ export default function BirthdayExperience() {
 
       <div className="light-texture" aria-hidden="true" />
       <div className="cinematic-vignette" aria-hidden="true" />
+
+      {!isCompactViewport ? (
+        <Suspense fallback={null}>
+          <OrbitImages
+            className="birthday-orbit"
+            images={birthdayPhotos}
+            shape="ellipse"
+            baseWidth={1400}
+            radiusX={620}
+            radiusY={330}
+            rotation={-7}
+            duration={34}
+            itemSize={112}
+            responsive
+            paused={prefersReducedMotion}
+          />
+        </Suspense>
+      ) : null}
 
       <section className="relative z-10 mx-auto flex min-h-svh w-full max-w-5xl flex-col items-center justify-center px-6 py-24 text-center sm:px-10">
         <motion.div
@@ -60,4 +98,3 @@ export default function BirthdayExperience() {
     </main>
   );
 }
-

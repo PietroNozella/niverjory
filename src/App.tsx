@@ -1,3 +1,4 @@
+import AcceptScaleEnd from "./components/AcceptScaleEnd";
 import BirthdayExperience from "./components/BirthdayExperience";
 import QRLanding from "./components/QRLanding";
 
@@ -12,6 +13,10 @@ export default function App() {
 
   if (route === "/mensagem") {
     return <BirthdayExperience />;
+  }
+
+  if (route === "/aceitar") {
+    return <AcceptScaleEnd />;
   }
 
   return <QRLanding />;
